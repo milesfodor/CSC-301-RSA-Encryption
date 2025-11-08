@@ -55,7 +55,7 @@ public class Client {
                 client.readResponseFromServer();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            client.close();
         }
     }
 
