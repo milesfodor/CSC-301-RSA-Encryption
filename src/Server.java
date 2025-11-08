@@ -4,17 +4,30 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.Scanner;
 
 
 public class Server {
     private ServerSocket server;
+    private KeyPair keyPair;
+    private PublicKey clientPublicKey;
 
-    public void initAndStart() throws IOException {
+    public void initAndStart() throws Exception {
+        keyPair = RSA.generateKeyPair();
+
         server = new ServerSocket(5000);
         System.out.println("Server is running");
         Socket clientSocket = server.accept();
         System.out.println("Client is connected\n");
+
+        PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
+        writer.println(RSA.keyToString(keyPair.getPublic()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        String clientKey = reader.readLine();
+        clientPublicKey = RSA.stringToKey(clientKey);
+
         System.out.println("Enter your messages here: ");
         while (true) {
             readMessageFromSocket(clientSocket);
@@ -24,16 +37,18 @@ public class Server {
         }
     }
 
-    private void replyToMessage(String response, Socket clientSocket) throws IOException {
+    private void replyToMessage(String response, Socket clientSocket) throws Exception {
         PrintWriter writer = new PrintWriter(clientSocket.getOutputStream(), true);
-        writer.println(response);
+        String encryptedMessage = RSA.encrypt(response, clientPublicKey);
+        writer.println(encryptedMessage);
     }
 
-    private void readMessageFromSocket(Socket clientSocket) throws IOException {
+    private void readMessageFromSocket(Socket clientSocket) throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
         String line = reader.readLine();
-        System.out.println("Client: " + line);
+        System.out.println("Encrypted Message: " + line);
+        String decryptedMessage = RSA.decrypt(line, keyPair.getPrivate());
+        System.out.println("Client: " + decryptedMessage);
     }
 
     public void close() {
@@ -51,7 +66,7 @@ public class Server {
 
         try {
             server.initAndStart();
-        } catch (IOException e) {
+        } catch (Exception e) {
             server.close();
         }
     }
