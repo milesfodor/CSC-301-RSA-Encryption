@@ -24,7 +24,7 @@ public class RSA {
         return new String(cipher.doFinal(bytes));
     }
 
-    public static String keyToString(PublicKey key) throws Exception {
+    public static String keyToString(PublicKey key) {
         return Base64.getEncoder().encodeToString(key.getEncoded());
     }
 
