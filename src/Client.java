@@ -14,7 +14,7 @@ public class Client {
 
 
     public void init() throws Exception {
-        socket = new Socket("localhost", 5000);
+        socket = new Socket(System.getenv("PI_IP"), 5000);
         System.out.println("Connecting to the server");
 
         keyPair = RSA.generateKeyPair();
