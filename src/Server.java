@@ -18,7 +18,7 @@ public class Server {
     public void initAndStart() throws Exception {
         keyPair = RSA.generateKeyPair();    //generate the key pair
 
-        server = new ServerSocket(5000);    //start up the server
+        server = new ServerSocket(5000);    //creates a socket and connects it to the port
         System.out.println("Server is running");
         Socket clientSocket = server.accept();  //accept the client to the server
         System.out.println("Client is connected\n");
