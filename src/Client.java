@@ -13,27 +13,24 @@ public class Client {
     private PublicKey serverPublicKey;
 
 
-    //initialization
     public void init() throws Exception {
-        socket = new Socket("localhost", 5000); //creates a socket and connects it to the port
+        socket = new Socket(System.getenv("PI_IP"), 5000);
         System.out.println("Connecting to the server");
 
-        keyPair = RSA.generateKeyPair();    //generate the key pair
+        keyPair = RSA.generateKeyPair();
         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String serverKey = reader.readLine();   //receive the server's public key as a string
-        serverPublicKey = RSA.stringToKey(serverKey);   //convert the string to a key
+        String serverKey = reader.readLine();
+        serverPublicKey = RSA.stringToKey(serverKey);
         PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-        writer.println(RSA.keyToString(keyPair.getPublic()));   //send public key to the server
+        writer.println(RSA.keyToString(keyPair.getPublic()));
     }
 
-    //send messages
     public void sendMessage(String msg) throws Exception {
-        String encryptedMessage = RSA.encrypt(msg, serverPublicKey);    //encrypt the message using the server's public key
+        String encryptedMessage = RSA.encrypt(msg, serverPublicKey);
         PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
-        writer.println(encryptedMessage);   //send message
+        writer.println(encryptedMessage);
     }
 
-    //close the socket to end communications
     public void close() {
         if (socket != null) {
             try {
@@ -52,23 +49,21 @@ public class Client {
             Scanner kb = new Scanner(System.in);
             System.out.println("Connected!\n");
             System.out.println("Enter your messages here: ");
-            //messaging loop
             while (true) {
                 String msg = kb.nextLine();
                 client.sendMessage(msg);
                 client.readResponseFromServer();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            client.close();
         }
     }
 
-    //read the messages from the server
     private void readResponseFromServer() throws Exception {
         BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        String response = reader.readLine();    //receive the message
-        System.out.println("Encrypted Message: " + response);   //display the encrypted message
-        String decryptedResponse = RSA.decrypt(response, keyPair.getPrivate()); //decrypt the message using the private key
-        System.out.println("Server: " + decryptedResponse); //display the decrypted message
+        String response = reader.readLine();
+        System.out.println("Encrypted Message: " + response);
+        String decryptedResponse = RSA.decrypt(response, keyPair.getPrivate());
+        System.out.println("Server: " + decryptedResponse);
     }
 }
