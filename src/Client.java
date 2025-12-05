@@ -15,7 +15,7 @@ public class Client {
 
     //initialization
     public void init() throws Exception {
-        socket = new Socket("localhost", 5000); //connect to socket
+        socket = new Socket("localhost", 5000); //creates a socket and connects it to the port
         System.out.println("Connecting to the server");
 
         keyPair = RSA.generateKeyPair();    //generate the key pair
